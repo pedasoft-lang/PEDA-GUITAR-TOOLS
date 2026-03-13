@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peda Guitar Tools - Master Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header><h1 class="logo">PEDA GUITAR TOOLS</h1></header>
+        <div class="toolbar">
+            <div class="tool-card"><span class="label">Corde:</span><select id="stringNumSelector" class="custom-select"><option value="6">6 Corde</option><option value="7">7 Corde</option><option value="8">8 Corde</option></select></div>
+            <div class="tool-card"><span class="label">Accordatura:</span><select id="tuningSelector" class="custom-select"></select></div>
+            <button id="resetBtn" class="reset-btn">Svuota Manico</button>
+        </div>
+        <div class="fretboard-container"><div id="fretGrid" class="fretboard-body"></div></div>
+        
+        <div class="modules-section">
+            <div class="modules-tabs">
+                <button id="toggleChordBtn" class="module-btn">RILEVATORE ACCORDO</button>
+                <button id="toggleScaleBtn" class="module-btn">SCALE MODALI</button>
+                <button id="toggleExoticBtn" class="module-btn">SCALE ESOTICHE</button>
+                <button id="togglePentaBtn" class="module-btn">PENTATONICHE</button>
+                <button id="toggleCagedBtn" class="module-btn">SISTEMA CAGED</button>
+            </div>
+            <div id="moduleContent" class="module-content-area hidden">
+                <div class="module-grid-layout">
+                    <div class="module-selectors">
+                        <div class="selector-group">
+                            <span class="label-tiny-fix">Tonalità</span>
+                            <select id="commonRoot" class="custom-select-dark"></select>
+                        </div>
+                        <div class="selector-group">
+                            <span class="label-tiny-fix">Tipo Scala</span>
+                            <select id="commonType" class="custom-select-dark"></select>
+                        </div>
+                    </div>
+                    <div class="module-info-display">
+                        <div class="info-row" id="rowDegrees"></div>
+                        <div class="info-row" id="rowNotes"></div>
+                        <div class="info-row" id="rowIntervals"></div>
+                        <div class="module-legend">
+                            <div class="leg-item"><span class="dot-leg root"></span> <span class="leg-text">Tonalità</span></div>
+                            <div class="leg-item"><span class="dot-leg major"></span> <span class="leg-text">Grado Maggiore</span></div>
+                            <div class="leg-item"><span class="dot-leg minor"></span> <span class="leg-text">Grado Minore</span></div>
+                            <div class="leg-item"><span class="dot-leg extra"></span> <span class="leg-text">Fuori Scala</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="chordMenu" class="hidden">
+                    <div id="chordName" class="chord-title">---</div>
+                    <div class="val" id="activeNotes">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tonaljs/tonal/browser/tonal.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
