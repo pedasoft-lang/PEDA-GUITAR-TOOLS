@@ -40,7 +40,7 @@
                         <div class="info-row" id="rowDegrees"></div>
                         <div class="info-row" id="rowNotes"></div>
                         <div class="info-row" id="rowIntervals"></div>
-                        <div class="module-legend">
+                        <div class="module-legend" id="scaleLegend">
                             <div class="leg-item"><span class="dot-leg root"></span> <span class="leg-text">Tonalità</span></div>
                             <div class="leg-item"><span class="dot-leg major"></span> <span class="leg-text">Grado Maggiore</span></div>
                             <div class="leg-item"><span class="dot-leg minor"></span> <span class="leg-text">Grado Minore</span></div>
@@ -48,9 +48,22 @@
                         </div>
                     </div>
                 </div>
+                
                 <div id="chordMenu" class="hidden">
-                    <div id="chordName" class="chord-title">---</div>
-                    <div class="val" id="activeNotes">-</div>
+                    <div class="module-info-display">
+                        <div id="chordName" class="chord-title">---</div>
+                        <div class="info-row" id="chordRowDegrees">
+                            <span class="label-tiny">Gradi:</span>
+                        </div>
+                        <div class="info-row" id="chordRowNotes">
+                            <span class="label-tiny">Note:</span>
+                        </div>
+                        <div class="module-legend">
+                            <div class="leg-item"><span class="dot-leg root"></span> <span class="leg-text">Tonica</span></div>
+                            <div class="leg-item"><span class="dot-leg major"></span> <span class="leg-text">Grado Maggiore</span></div>
+                            <div class="leg-item"><span class="dot-leg minor"></span> <span class="leg-text">Grado Minore</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

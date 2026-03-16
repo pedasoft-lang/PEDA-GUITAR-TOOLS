@@ -80,26 +80,30 @@ function render() {
     const tKey = document.getElementById('tuningSelector').value;
     if (!tKey) return;
     
-    // Salviamo lo stato attuale delle corde (attive/mute al tasto 0) prima del reset
     const savedStates = Array.from(document.querySelectorAll('.string-row')).map(row => {
         const nut = row.querySelector('.fret[data-fret="0"]');
         return nut ? { active: nut.classList.contains('active'), muted: nut.classList.contains('is-muted') } : { active: true, muted: false };
     }).reverse();
 
     grid.innerHTML = "";
-    const tuning = THEORY.TUNINGS[sNum][tKey];
     
+    // LIVELLO SEGNATASTI (INLAYS)
     const inlays = document.createElement('div');
     inlays.className = "inlays-layer";
     for(let f=0; f<=24; f++) {
         const div = document.createElement('div');
         div.className="inlay-fret"; div.dataset.fret = f;
         if ([3,5,7,9,15,17,19,21].includes(f)) div.innerHTML='<div class="dot"></div>';
-        if (f === 12 || f === 24) { div.style.display = "flex"; div.style.flexDirection = "column"; div.style.justifyContent = "space-around"; div.style.padding = "45px 0"; div.innerHTML='<div class="dot"></div><div class="dot"></div>'; }
+        if (f === 12 || f === 24) { 
+            div.style.display = "flex"; div.style.flexDirection = "column"; 
+            div.style.justifyContent = "space-around"; div.style.padding = "45px 0"; 
+            div.innerHTML='<div class="dot"></div><div class="dot"></div>'; 
+        }
         inlays.appendChild(div);
     }
-    grid.appendChild(inlays);
+    grid.appendChild(inlays); // Ora aggiunto correttamente prima delle corde
 
+    const tuning = THEORY.TUNINGS[sNum][tKey];
     tuning.forEach((startNote, sIdx) => {
         const row = document.createElement('div');
         row.className = "string-row";
@@ -109,12 +113,11 @@ function render() {
             const fret = document.createElement('div');
             fret.className = "fret"; fret.dataset.fret = f;
             
-            // Ripristiniamo lo stato se siamo al tasto 0
             if (f === 0 && savedStates[sIdx]) {
                 if (savedStates[sIdx].active) fret.classList.add('active');
                 if (savedStates[sIdx].muted) fret.classList.add('is-muted');
             } else if (f === 0) {
-                fret.classList.add('active'); // Default se nuovo render
+                fret.classList.add('active');
             }
 
             const noteName = NOTES[(startIdx + f) % 12];
@@ -134,12 +137,10 @@ function render() {
                     if (activeModule === 'chord') {
                         const currentRow = fret.parentElement;
                         currentRow.querySelectorAll('.fret').forEach(fEl => { if (fEl !== fret) fEl.classList.remove('active'); });
-                        // Se attiviamo un tasto, la corda a vuoto della stessa riga si spegne
                         const nut = currentRow.querySelector('.fret[data-fret="0"]');
                         if (nut) nut.classList.remove('active');
                     }
                     fret.classList.toggle('active');
-                    // Se spegniamo l'unico tasto attivo della riga, riattiviamo la corda a vuoto (se non mutata)
                     if (!fret.classList.contains('active') && activeModule === 'chord') {
                         const nut = fret.parentElement.querySelector('.fret[data-fret="0"]');
                         if (nut && !nut.classList.contains('is-muted')) nut.classList.add('active');
@@ -184,24 +185,49 @@ function updateLogic(autoFill = true) {
             }
         });
 
-        const uniqueNames = [...new Set(noteObjects.map(o => o.name))];
+        const chordRowDeg = document.getElementById('chordRowDegrees');
+        const chordRowNot = document.getElementById('chordRowNotes');
+        chordRowDeg.innerHTML = '<span class="label-tiny">Gradi:</span>';
+        chordRowNot.innerHTML = '<span class="label-tiny">Note:</span>';
 
         if (noteObjects.length >= 1) {
             const result = RilevatoreAccordi.analyze(noteObjects);
             document.getElementById('chordName').innerText = result.name;
-            document.getElementById('activeNotes').innerText = uniqueNames.join(' - ');
 
             if (result.root !== null) {
-                const rootNoteName = NOTES[result.root];
+                const uniqueNotes = [];
+                const seen = new Set();
+                noteObjects.forEach(obj => {
+                    if (!seen.has(obj.index)) {
+                        uniqueNotes.push(obj);
+                        seen.add(obj.index);
+                    }
+                });
+
+                uniqueNotes.sort((a, b) => ((a.index - result.root + 12) % 12) - ((b.index - result.root + 12) % 12));
+
+                uniqueNotes.forEach(noteObj => {
+                    const diff = (noteObj.index - result.root + 12) % 12;
+                    const degLabel = THEORY.INTERVALS[diff];
+                    const colorClass = diff === 0 ? 'is-root' : degLabel.includes('b') ? 'is-minor' : 'is-major';
+
+                    chordRowDeg.innerHTML += `<div class="info-cell"><span class="info-val">${degLabel}</span></div>`;
+                    chordRowNot.innerHTML += `<div class="info-cell"><span class="note-val-display ${colorClass}">${noteObj.name}</span></div>`;
+                });
+
                 document.querySelectorAll('.fret.active:not(.is-muted)').forEach(f => {
-                    const note = f.querySelector('.note-name').innerText;
-                    if (note === rootNoteName) f.classList.add('is-root');
+                    const noteName = f.querySelector('.note-name').innerText;
+                    const currentNoteIdx = NOTES.indexOf(noteName);
+                    const diff = (currentNoteIdx - result.root + 12) % 12;
+                    const degLabel = THEORY.INTERVALS[diff];
+
+                    if (diff === 0) f.classList.add('is-root');
+                    else if (degLabel.includes('b')) f.classList.add('is-minor');
                     else f.classList.add('is-major');
                 });
             }
         } else {
             document.getElementById('chordName').innerText = "---";
-            document.getElementById('activeNotes').innerText = "Nessuna nota";
         }
     } else if (activeModule && activeModule !== 'chord' && activeModule !== 'caged') {
         const rowDeg = document.getElementById('rowDegrees'), rowNot = document.getElementById('rowNotes'), rowInt = document.getElementById('rowIntervals');
@@ -261,9 +287,7 @@ function init() {
     tSel.addEventListener('change', render);
     rBtn.onclick = () => { 
         document.querySelectorAll('.fret').forEach(f => { 
-            if (parseInt(f.dataset.fret) !== 0) f.classList.remove('active'); 
-            f.classList.remove('is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); 
-            if (parseInt(f.dataset.fret) === 0) f.classList.add('active');
+            f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); 
         }); 
         updateLogic(false); 
     };
@@ -275,24 +299,32 @@ function init() {
         if (!btn) return;
         btn.onclick = () => {
             activeModule = (activeModule === k) ? null : k;
+            
+            document.querySelectorAll('.fret').forEach(f => { 
+                f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); 
+            });
+
             if (k === 'scale') populateType(THEORY.MODAL); 
             else if (k === 'exotic') populateType(THEORY.EXOTIC); 
             else if (k === 'penta') populateType(THEORY.PENTA);
-            document.querySelectorAll('.fret').forEach(f => { 
-                if (parseInt(f.dataset.fret) !== 0) f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); 
-                else {
-                    f.classList.remove('is-muted', 'is-root', 'is-minor', 'is-major', 'invalid');
-                    f.classList.add('active');
-                }
-            });
+            
             document.getElementById('moduleContent').classList.toggle('hidden', activeModule === null);
             document.getElementById('chordMenu').classList.toggle('hidden', activeModule !== 'chord');
             document.querySelector('.module-grid-layout').classList.toggle('hidden', activeModule === 'chord' || activeModule === null);
+            
             Object.values(btns).forEach(id => { document.getElementById(id)?.classList.remove('active'); });
+            
             if(activeModule) { 
                 document.getElementById(btns[k]).classList.add('active'); 
-                if (k !== 'chord' && k !== 'caged') updateLogic(true); 
-            } else { updateLogic(false); }
+                if (k !== 'chord' && k !== 'caged') {
+                     document.querySelectorAll('.fret[data-fret="0"]').forEach(f => f.classList.add('active'));
+                     updateLogic(true); 
+                } else {
+                     updateLogic(false);
+                }
+            } else { 
+                updateLogic(false); 
+            }
         };
     });
     function populateType(obj) { 
