@@ -35,6 +35,24 @@
                             <span class="label-tiny-fix">Tipo Scala</span>
                             <select id="commonType" class="custom-select-dark"></select>
                         </div>
+                        <div class="selector-group" id="displayModeGroup">
+                            <span class="label-tiny-fix">Visualizzazione</span>
+                            <select id="displayMode" class="custom-select-dark">
+                                <option value="full">Tutta la tastiera</option>
+                                <option value="3nps">3 Note per Corda</option>
+                            </select>
+                        </div>
+                        <div class="selector-group" id="extensionGroup">
+                            <span class="label-tiny-fix">Estensione</span>
+                            <button id="toggleLowString" class="module-btn btn-glow-control" style="padding: 5px; width: 100%; font-size: 0.75rem;">Includi 6ª Corda: OFF</button>
+                        </div>
+                        <div class="selector-group" id="octaveGroup">
+                            <span class="label-tiny-fix">Sposta Ottava</span>
+                            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                <button id="octaveDown" class="module-btn btn-glow-control" style="padding: 5px; min-width: 40px;">-12</button>
+                                <button id="octaveUp" class="module-btn btn-glow-control" style="padding: 5px; min-width: 40px;">+12</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="module-info-display">
                         <div class="info-row" id="rowDegrees"></div>
@@ -48,21 +66,11 @@
                         </div>
                     </div>
                 </div>
-                
                 <div id="chordMenu" class="hidden">
                     <div class="module-info-display">
-                        <div id="chordName" class="chord-title">---</div>
-                        <div class="info-row" id="chordRowDegrees">
-                            <span class="label-tiny">Gradi:</span>
-                        </div>
-                        <div class="info-row" id="chordRowNotes">
-                            <span class="label-tiny">Note:</span>
-                        </div>
-                        <div class="module-legend">
-                            <div class="leg-item"><span class="dot-leg root"></span> <span class="leg-text">Tonica</span></div>
-                            <div class="leg-item"><span class="dot-leg major"></span> <span class="leg-text">Grado Maggiore</span></div>
-                            <div class="leg-item"><span class="dot-leg minor"></span> <span class="leg-text">Grado Minore</span></div>
-                        </div>
+                        <div id="chordName" class="chord-title" style="font-weight: bold; font-size: 1.8rem; color: #00d2ff; text-align: center; margin-bottom: 10px;">---</div>
+                        <div class="info-row" id="chordRowDegrees"><span class="label-tiny">Gradi:</span></div>
+                        <div class="info-row" id="chordRowNotes"><span class="label-tiny">Note:</span></div>
                     </div>
                 </div>
             </div>

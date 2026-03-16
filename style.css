@@ -59,3 +59,11 @@ body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif;
 .note-val-display.is-minor { color: var(--minor-green); }
 .inter-cell { width: 40px; flex-shrink: 0; display: flex; justify-content: center; align-items: center; color: var(--gold); font-weight: 900; font-size: 14px; }
 .hidden { display: none !important; }
+.btn-glow-control { transition: all 0.3s ease; }
+.btn-glow-control.active-glow { 
+    background: #002233 !important; 
+    border-color: var(--cyan) !important; 
+    color: var(--cyan) !important; 
+    box-shadow: 0 0 10px var(--cyan), inset 0 0 5px var(--cyan); 
+    text-shadow: 0 0 5px var(--cyan); 
+}
