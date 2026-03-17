@@ -4,7 +4,7 @@ let includeLowString = false;
 
 const RilevatoreAccordi = {
     rules: [
-        { name: "",      intervals: [0, 4, 7] },
+        { name: "",     intervals: [0, 4, 7] },
         { name: "m",     intervals: [0, 3, 7] },
         { name: "maj7",  intervals: [0, 4, 7, 11] },
         { name: "7",     intervals: [0, 4, 7, 10] },
@@ -52,8 +52,32 @@ const THEORY = {
         8: { "STANDARD (F#)": ["E", "B", "G", "D", "A", "E", "B", "F#"] }
     },
     MODAL: { "0,2,4,5,7,9,11": "IONICA", "0,2,3,5,7,9,10": "DORICA", "0,1,3,5,7,8,10": "FRIGIA", "0,2,4,6,7,9,11": "LIDIA", "0,2,4,5,7,9,10": "MISOLIDIA", "0,2,3,5,7,8,10": "EOLIA", "0,1,3,5,6,8,10": "LOCRIA" },
-    EXOTIC: { "0,1,4,5,7,8,11": "DOPPIA ARM.", "0,1,3,4,6,7,9,10": "DIMINUITA", "0,2,4,6,8,10": "ESATONALE" },
+    EXOTIC: { 
+        "0,2,4,5,6,8,10": "ARABA",
+        "0,1,4,5,6,8,11": "PERSIANA",
+        "0,1,4,5,7,8,11": "BIZANTINA (DOPPIA ARM.)",
+        "0,1,4,5,7,8,10": "ORIENTALE",
+        "0,1,3,5,7,8,10": "INDIANA (ASAVARI)",
+        "0,2,4,5,7,8,10": "ASAVARI ASCENDENTE",
+        "0,1,3,5,7,8,10": "ASAVARI DISCENDENTE",
+        "0,3,4,6,7,9,10": "UNGHERESE MINORE",
+        "0,2,4,6,7,9,10": "UNGHERESE MAGGIORE",
+        "0,2,3,7,8": "GIAPPONESE (HIRAJOSHI)",
+        "0,1,5,7,8": "HON KUMOI SHIOUZHI",
+        "0,1,5,6,10": "IWATO",
+        "0,2,5,7,10": "EGIZIANA",
+        "0,2,5,7,9": "VIETNAMITA",
+        "0,1,3,5,7,8,11": "NAPOLETANA MINORE",
+        "0,1,3,5,7,9,11": "NAPOLETANA MAGGIORE",
+        "0,1,4,5,7,9,10": "GIAVANESE",
+        "0,1,3,4,6,7,9,10": "DIMINUITA (T-S)",
+        "0,2,3,5,6,8,9,11": "DIMINUITA (S-T)",
+        "0,2,4,6,8,10": "ESATONALE",
+        "0,1,3,4,7,8,10": "ENIGMATICA",
+        "0,2,3,6,7,8,11": "ZINGARA"
+    },
     PENTA: { "0,2,4,7,9": "MAGGIORE", "0,3,5,7,10": "MINORE", "0,3,5,6,7,10": "BLUES" },
+    CAGED: { "forma-a": "FORMA A" },
     INTERVALS: { 0: "1", 1: "b2", 2: "2", 3: "b3", 4: "3", 5: "4", 6: "#4", 7: "5", 8: "b6", 9: "6", 10: "b7", 11: "7" }
 };
 
@@ -146,7 +170,7 @@ function updateLogic(autoFill = true) {
     const modeEl = document.getElementById('displayMode');
     if (!rootEl || !typeEl || !modeEl) return;
     const rootIdx = parseInt(rootEl.value);
-    const intervalsArr = typeEl.value ? typeEl.value.split(',').map(Number) : [];
+    const intervalsArr = (activeModule === 'caged') ? [0, 2, 4, 7, 9] : (typeEl.value ? typeEl.value.split(',').map(Number) : []);
     const is3NPS = modeEl.value === '3nps';
 
     document.getElementById('octaveUp').classList.toggle('active-glow', octaveOffset === 12);
@@ -194,9 +218,10 @@ function updateLogic(autoFill = true) {
                 });
             }
         } else { document.getElementById('chordName').innerText = "---"; }
-    } else if (activeModule && activeModule !== 'chord' && activeModule !== 'caged') {
+    } else if (activeModule && activeModule !== 'chord') {
         const rowDeg = document.getElementById('rowDegrees'), rowNot = document.getElementById('rowNotes'), rowInt = document.getElementById('rowIntervals');
         rowDeg.innerHTML = '<span class="label-tiny">Gradi:</span>'; rowNot.innerHTML = '<span class="label-tiny">Note:</span>'; rowInt.innerHTML = '<span class="label-tiny">Intervalli:</span>';
+        
         if(intervalsArr.length > 0) {
             const displaySteps = [];
             const count = intervalsArr.length;
@@ -207,7 +232,7 @@ function updateLogic(autoFill = true) {
                 const diff = (NOTES.indexOf(noteName) - rootIdx + 12) % 12;
                 const degLabel = THEORY.INTERVALS[diff];
                 let colorClass = diff === 0 ? 'is-root' : degLabel.includes('b') ? 'is-minor' : 'is-major';
-                rowDeg.innerHTML += '<div class="info-cell"><span class="info-val">' + customDegreeMap[i] + '</span></div>';
+                rowDeg.innerHTML += '<div class="info-cell"><span class="info-val">' + (customDegreeMap[i] || "") + '</span></div>';
                 rowNot.innerHTML += '<div class="info-cell"><span class="note-val-display ' + colorClass + '">' + noteName + '</span></div>';
                 rowInt.innerHTML += '<div class="info-cell"></div>'; 
                 if (i < displaySteps.length - 1) {
@@ -219,7 +244,30 @@ function updateLogic(autoFill = true) {
                 }
             });
         }
-        if (is3NPS && autoFill) {
+
+        if (activeModule === 'caged' && autoFill) {
+            allFrets.forEach(f => f.classList.remove('active', 'is-root', 'is-minor', 'is-major'));
+            const rows = Array.from(document.querySelectorAll('.string-row')).reverse();
+            let aStringStart = NOTES.indexOf(rows[4].querySelector('.fret[data-fret="0"] .note-name').innerText);
+            let rootFretOnA = (rootIdx - aStringStart + 12) % 12;
+            if (rootFretOnA < 2) rootFretOnA += 12;
+
+            const shapeA = [
+                { s: 5, frets: [rootFretOnA, rootFretOnA + 2] }, 
+                { s: 4, frets: [rootFretOnA, rootFretOnA + 2] }, 
+                { s: 3, frets: [rootFretOnA - 1, rootFretOnA + 2] }, 
+                { s: 2, frets: [rootFretOnA - 1, rootFretOnA + 2] }, 
+                { s: 1, frets: [rootFretOnA, rootFretOnA + 2] }, 
+                { s: 0, frets: [rootFretOnA, rootFretOnA + 2] }  
+            ];
+
+            shapeA.forEach(item => {
+                item.frets.forEach(fNum => {
+                    const target = rows[item.s]?.querySelector(`.fret[data-fret="${fNum}"]`);
+                    if(target) target.classList.add('active');
+                });
+            });
+        } else if (is3NPS && autoFill) {
             allFrets.forEach(f => f.classList.remove('active', 'invalid', 'is-root', 'is-minor', 'is-major'));
             const rows = Array.from(document.querySelectorAll('.string-row')).reverse();
             const scaleNotes = intervalsArr.map(i => (rootIdx + i) % 12);
@@ -242,11 +290,12 @@ function updateLogic(autoFill = true) {
                 }
             }
         }
+
         allFrets.forEach(f => {
             const noteName = f.querySelector('.note-name').innerText;
             const diff = (NOTES.indexOf(noteName) - rootIdx + 12) % 12;
             const isInScale = intervalsArr.includes(diff);
-            if (!is3NPS && autoFill) { if (parseInt(f.dataset.fret) !== 0) f.classList.remove('active'); if (isInScale) f.classList.add('active'); }
+            if (!is3NPS && activeModule !== 'caged' && autoFill) { if (parseInt(f.dataset.fret) !== 0) f.classList.remove('active'); if (isInScale) f.classList.add('active'); }
             if (f.classList.contains('active') && !f.classList.contains('is-muted')) {
                 if (!isInScale) f.classList.add('invalid');
                 else {
@@ -290,20 +339,30 @@ function init() {
             octaveOffset = 0; includeLowString = false;
             lowBtn.innerText = "Includi 6ª Corda: OFF";
             document.querySelectorAll('.fret').forEach(f => { f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); });
+            
             if (k === 'scale') populateType(THEORY.MODAL); 
             else if (k === 'exotic') populateType(THEORY.EXOTIC); 
             else if (k === 'penta') populateType(THEORY.PENTA);
+            else if (k === 'caged') populateType(THEORY.CAGED);
+
             document.getElementById('moduleContent').classList.toggle('hidden', activeModule === null);
             document.getElementById('chordMenu').classList.toggle('hidden', activeModule !== 'chord');
             document.querySelector('.module-grid-layout').classList.toggle('hidden', activeModule === 'chord' || activeModule === null);
             document.getElementById('displayModeGroup').classList.toggle('hidden', activeModule === 'chord' || activeModule === null);
             document.getElementById('octaveGroup').classList.toggle('hidden', activeModule === 'chord' || activeModule === null);
             document.getElementById('extensionGroup').classList.toggle('hidden', activeModule === 'chord' || activeModule === null);
+            
             Object.values(btns).forEach(id => { document.getElementById(id)?.classList.remove('active'); });
             if(activeModule) { document.getElementById(btns[k]).classList.add('active'); updateLogic(true); } else { updateLogic(false); }
         };
     });
-    function populateType(obj) { cType.innerHTML = Object.keys(obj).map(k => '<option value="' + k + '">' + obj[k] + '</option>').join(''); cRoot.onchange = () => updateLogic(true); cType.onchange = () => updateLogic(true); }
+
+    function populateType(obj) { 
+        cType.innerHTML = Object.keys(obj).map(k => '<option value="' + k + '">' + obj[k] + '</option>').join(''); 
+        cRoot.onchange = () => updateLogic(true); 
+        cType.onchange = () => updateLogic(true); 
+    }
+
     tSel.innerHTML = Object.keys(THEORY.TUNINGS[sSel.value]).map(t => '<option value="' + t + '">' + t + '</option>').join('');
     render();
 }
