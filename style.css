@@ -1,6 +1,6 @@
 :root { 
     --gold: #b58e31; --cyan: #00d4ff; --wood: #2a1b10; --bg: #0a0a0a; 
-    --tonica: #ffcc00; --error: #ff4444; --minor: #00ff88; --major-blue: #0077ff; --minor-green: #22cc22; 
+    --tonica: #ffcc00; --error: #ff4444; --minor: #00ff88; --major-blue: #0077ff; --minor-green: #22cc22; --blue-note: #ff00ff;
 }
 body { 
     background: var(--bg); 
@@ -224,6 +224,12 @@ body {
     box-shadow: 0 0 8px var(--major-blue); 
     color: #000 !important; 
 }
+.fret.is-blue .note-circle { 
+    background: var(--blue-note) !important; 
+    box-shadow: 0 0 10px var(--blue-note), 0 0 20px #aa00ff; 
+    color: #fff !important; 
+    border-color: #fff !important;
+}
 .fret.invalid .note-circle { 
     background: var(--error) !important; 
     color: #fff !important; 
@@ -272,6 +278,10 @@ body {
     background: var(--minor-green); 
     box-shadow: 0 0 6px var(--minor-green); 
 }
+.dot-leg.blue { 
+    background: var(--blue-note); 
+    box-shadow: 0 0 6px var(--blue-note); 
+}
 .dot-leg.extra { 
     background: var(--error); 
     box-shadow: 0 0 6px var(--error); 
@@ -297,7 +307,7 @@ body {
     margin-top: 10px; 
     box-sizing: border-box;
     flex-shrink: 0;
-    max-height: 35vh;
+    max-height: auto;
     overflow-y: auto;
 }
 .modules-tabs { 
@@ -334,7 +344,7 @@ body {
     box-sizing: border-box; 
     border-radius: 0 0 6px 6px;
     overflow-y: auto;
-    max-height: 30vh;
+    max-height: 25vh;
 }
 .module-grid-layout { 
     display: flex; 
@@ -393,6 +403,9 @@ body {
 .note-val-display.is-minor { 
     color: var(--minor-green); 
 }
+.note-val-display.is-blue { 
+    color: var(--blue-note); 
+}
 .inter-cell { 
     width: 40px; 
     flex-shrink: 0; 
@@ -433,11 +446,11 @@ body {
     }
     
     .modules-section {
-        max-height: 30vh;
+        max-height: auto;
     }
     
     .module-content-area {
-        max-height: 25vh;
+        max-height: 20vh;
         padding: 10px;
     }
     
