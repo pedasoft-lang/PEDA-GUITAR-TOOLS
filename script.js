@@ -246,7 +246,7 @@ function updateLogic(autoFill = true) {
         }
 
         if (activeModule === 'caged' && autoFill) {
-            allFrets.forEach(f => f.classList.remove('active', 'is-root', 'is-minor', 'is-major'));
+            allFrets.forEach(f => f.classList.remove('active', 'is-root', 'is-minor', 'is-major', 'is-blue'));
             const rows = Array.from(document.querySelectorAll('.string-row')).reverse();
             let aStringStart = NOTES.indexOf(rows[4].querySelector('.fret[data-fret="0"] .note-name').innerText);
             let rootFretOnA = (rootIdx - aStringStart + 12) % 12;
@@ -268,7 +268,7 @@ function updateLogic(autoFill = true) {
                 });
             });
         } else if (is3NPS && autoFill) {
-            allFrets.forEach(f => f.classList.remove('active', 'invalid', 'is-root', 'is-minor', 'is-major'));
+            allFrets.forEach(f => f.classList.remove('active', 'invalid', 'is-root', 'is-minor', 'is-major', 'is-blue'));
             const rows = Array.from(document.querySelectorAll('.string-row')).reverse();
             const scaleNotes = intervalsArr.map(i => (rootIdx + i) % 12);
             let basePos = (rootIdx + 3); 
@@ -301,6 +301,7 @@ function updateLogic(autoFill = true) {
                 else {
                     const degLabel = THEORY.INTERVALS[diff];
                     if (diff === 0) f.classList.add('is-root');
+                    else if ((activeModule === 'penta' || activeModule === 'caged') && diff === 6) f.classList.add('is-blue');
                     else if (degLabel.includes('b')) f.classList.add('is-minor');
                     else f.classList.add('is-major');
                 }
@@ -327,7 +328,7 @@ function init() {
     sSel.addEventListener('change', () => { tSel.innerHTML = Object.keys(THEORY.TUNINGS[sSel.value]).map(t => '<option value="' + t + '">' + t + '</option>').join(''); render(); });
     tSel.addEventListener('change', render);
     dMode.addEventListener('change', () => updateLogic(true));
-    rBtn.onclick = () => { octaveOffset = 0; includeLowString = false; lowBtn.innerText = "Includi 6ª Corda: OFF"; document.querySelectorAll('.fret').forEach(f => { f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); }); updateLogic(false); };
+    rBtn.onclick = () => { octaveOffset = 0; includeLowString = false; lowBtn.innerText = "Includi 6ª Corda: OFF"; document.querySelectorAll('.fret').forEach(f => { f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid', 'is-blue'); }); updateLogic(false); };
     cRoot.innerHTML = NOTES.map((n, i) => '<option value="' + i + '">' + n + '</option>').join('');
     
     const btns = { chord: 'toggleChordBtn', scale: 'toggleScaleBtn', exotic: 'toggleExoticBtn', penta: 'togglePentaBtn', caged: 'toggleCagedBtn' };
@@ -338,7 +339,7 @@ function init() {
             activeModule = (activeModule === k) ? null : k;
             octaveOffset = 0; includeLowString = false;
             lowBtn.innerText = "Includi 6ª Corda: OFF";
-            document.querySelectorAll('.fret').forEach(f => { f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid'); });
+            document.querySelectorAll('.fret').forEach(f => { f.classList.remove('active', 'is-muted', 'is-root', 'is-minor', 'is-major', 'invalid', 'is-blue'); });
             
             if (k === 'scale') populateType(THEORY.MODAL); 
             else if (k === 'exotic') populateType(THEORY.EXOTIC); 
